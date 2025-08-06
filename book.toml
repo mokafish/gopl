@@ -1,0 +1,5 @@
+[book]
+authors = ["译者:", "chai2010", "Xargin", "CrazySssst", "foreversmart"]
+language = "zh-hans"
+src = "book-src"
+title = "GOPL zh-hans"

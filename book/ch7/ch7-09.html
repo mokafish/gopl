@@ -1,0 +1,484 @@
+<!DOCTYPE HTML>
+<html lang="zh-hans" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>示例: 表达式求值 - GOPL zh-hans</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">GOPL zh-hans</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="79-示例-表达式求值"><a class="header" href="#79-示例-表达式求值">7.9. 示例: 表达式求值</a></h2>
+<p>在本节中，我们会构建一个简单算术表达式的求值器。我们将使用一个接口Expr来表示Go语言中任意的表达式。现在这个接口不需要有方法，但是我们后面会为它增加一些。</p>
+<pre><code class="language-go">// An Expr is an arithmetic expression.
+type Expr interface{}
+</code></pre>
+<p>我们的表达式语言包括浮点数符号（小数点）；二元操作符+，-，*， 和/；一元操作符-x和+x；调用pow(x,y)，sin(x)，和sqrt(x)的函数；例如x和pi的变量；当然也有括号和标准的优先级运算符。所有的值都是float64类型。这下面是一些表达式的例子：</p>
+<pre><code class="language-go">sqrt(A / pi)
+pow(x, 3) + pow(y, 3)
+(F - 32) * 5 / 9
+</code></pre>
+<p>下面的五个具体类型表示了具体的表达式类型。Var类型表示对一个变量的引用。（我们很快会知道为什么它可以被输出。）literal类型表示一个浮点型常量。unary和binary类型表示有一到两个运算对象的运算符表达式，这些操作数可以是任意的Expr类型。call类型表示对一个函数的调用；我们限制它的fn字段只能是pow，sin或者sqrt。</p>
+<p><u><i>gopl.io/ch7/eval</i></u></p>
+<pre><code class="language-go">// A Var identifies a variable, e.g., x.
+type Var string
+
+// A literal is a numeric constant, e.g., 3.141.
+type literal float64
+
+// A unary represents a unary operator expression, e.g., -x.
+type unary struct {
+	op rune // one of '+', '-'
+	x  Expr
+}
+
+// A binary represents a binary operator expression, e.g., x+y.
+type binary struct {
+	op   rune // one of '+', '-', '*', '/'
+	x, y Expr
+}
+
+// A call represents a function call expression, e.g., sin(x).
+type call struct {
+	fn   string // one of "pow", "sin", "sqrt"
+	args []Expr
+}
+</code></pre>
+<p>为了计算一个包含变量的表达式，我们需要一个environment变量将变量的名字映射成对应的值：</p>
+<pre><code class="language-go">type Env map[Var]float64
+</code></pre>
+<p>我们也需要每个表达式去定义一个Eval方法，这个方法会根据给定的environment变量返回表达式的值。因为每个表达式都必须提供这个方法，我们将它加入到Expr接口中。这个包只会对外公开Expr，Env，和Var类型。调用方不需要获取其它的表达式类型就可以使用这个求值器。</p>
+<pre><code class="language-go">type Expr interface {
+	// Eval returns the value of this Expr in the environment env.
+	Eval(env Env) float64
+}
+</code></pre>
+<p>下面给大家展示一个具体的Eval方法。Var类型的这个方法对一个environment变量进行查找，如果这个变量没有在environment中定义过这个方法会返回一个零值，literal类型的这个方法简单的返回它真实的值。</p>
+<pre><code class="language-go">func (v Var) Eval(env Env) float64 {
+	return env[v]
+}
+
+func (l literal) Eval(_ Env) float64 {
+	return float64(l)
+}
+</code></pre>
+<p>unary和binary的Eval方法会递归的计算它的运算对象，然后将运算符op作用到它们上。我们不将被零或无穷数除作为一个错误，因为它们都会产生一个固定的结果——无限。最后，call的这个方法会计算对于pow，sin，或者sqrt函数的参数值，然后调用对应在math包中的函数。</p>
+<pre><code class="language-go">func (u unary) Eval(env Env) float64 {
+	switch u.op {
+	case '+':
+		return +u.x.Eval(env)
+	case '-':
+		return -u.x.Eval(env)
+	}
+	panic(fmt.Sprintf("unsupported unary operator: %q", u.op))
+}
+
+func (b binary) Eval(env Env) float64 {
+	switch b.op {
+	case '+':
+		return b.x.Eval(env) + b.y.Eval(env)
+	case '-':
+		return b.x.Eval(env) - b.y.Eval(env)
+	case '*':
+		return b.x.Eval(env) * b.y.Eval(env)
+	case '/':
+		return b.x.Eval(env) / b.y.Eval(env)
+	}
+	panic(fmt.Sprintf("unsupported binary operator: %q", b.op))
+}
+
+func (c call) Eval(env Env) float64 {
+	switch c.fn {
+	case "pow":
+		return math.Pow(c.args[0].Eval(env), c.args[1].Eval(env))
+	case "sin":
+		return math.Sin(c.args[0].Eval(env))
+	case "sqrt":
+		return math.Sqrt(c.args[0].Eval(env))
+	}
+	panic(fmt.Sprintf("unsupported function call: %s", c.fn))
+}
+</code></pre>
+<p>一些方法会失败。例如，一个call表达式可能有未知的函数或者错误的参数个数。用一个无效的运算符如!或者&lt;去构建一个unary或者binary表达式也是可能会发生的（尽管下面提到的Parse函数不会这样做）。这些错误会让Eval方法panic。其它的错误，像计算一个没有在environment变量中出现过的Var，只会让Eval方法返回一个错误的结果。所有的这些错误都可以通过在计算前检查Expr来发现。这是我们接下来要讲的Check方法的工作，但是让我们先测试Eval方法。</p>
+<p>下面的TestEval函数是对evaluator的一个测试。它使用了我们会在第11章讲解的testing包，但是现在知道调用t.Errof会报告一个错误就足够了。这个函数循环遍历一个表格中的输入，这个表格中定义了三个表达式和针对每个表达式不同的环境变量。第一个表达式根据给定圆的面积A计算它的半径，第二个表达式通过两个变量x和y计算两个立方体的体积之和，第三个表达式将华氏温度F转换成摄氏度。</p>
+<pre><code class="language-go">func TestEval(t *testing.T) {
+	tests := []struct {
+		expr string
+		env  Env
+		want string
+	}{
+		{"sqrt(A / pi)", Env{"A": 87616, "pi": math.Pi}, "167"},
+		{"pow(x, 3) + pow(y, 3)", Env{"x": 12, "y": 1}, "1729"},
+		{"pow(x, 3) + pow(y, 3)", Env{"x": 9, "y": 10}, "1729"},
+		{"5 / 9 * (F - 32)", Env{"F": -40}, "-40"},
+		{"5 / 9 * (F - 32)", Env{"F": 32}, "0"},
+		{"5 / 9 * (F - 32)", Env{"F": 212}, "100"},
+	}
+	var prevExpr string
+	for _, test := range tests {
+		// Print expr only when it changes.
+		if test.expr != prevExpr {
+			fmt.Printf("\n%s\n", test.expr)
+			prevExpr = test.expr
+		}
+		expr, err := Parse(test.expr)
+		if err != nil {
+			t.Error(err) // parse error
+			continue
+		}
+		got := fmt.Sprintf("%.6g", expr.Eval(test.env))
+		fmt.Printf("\t%v =&gt; %s\n", test.env, got)
+		if got != test.want {
+			t.Errorf("%s.Eval() in %v = %q, want %q\n",
+			test.expr, test.env, got, test.want)
+		}
+	}
+}
+</code></pre>
+<p>对于表格中的每一条记录，这个测试会解析它的表达式然后在环境变量中计算它，输出结果。这里我们没有空间来展示Parse函数，但是如果你使用go get下载这个包你就可以看到这个函数。</p>
+<p>go test(§11.1) 命令会运行一个包的测试用例：</p>
+<pre><code>$ go test -v gopl.io/ch7/eval
+</code></pre>
+<p>这个-v标识可以让我们看到测试用例打印的输出；正常情况下像这样一个成功的测试用例会阻止打印结果的输出。这里是测试用例里fmt.Printf语句的输出：</p>
+<pre><code>sqrt(A / pi)
+    map[A:87616 pi:3.141592653589793] =&gt; 167
+
+pow(x, 3) + pow(y, 3)
+    map[x:12 y:1] =&gt; 1729
+    map[x:9 y:10] =&gt; 1729
+
+5 / 9 * (F - 32)
+    map[F:-40] =&gt; -40
+    map[F:32] =&gt; 0
+    map[F:212] =&gt; 100
+</code></pre>
+<p>幸运的是目前为止所有的输入都是适合的格式，但是我们的运气不可能一直都有。甚至在解释型语言中，为了静态错误检查语法是非常常见的；静态错误就是不用运行程序就可以检测出来的错误。通过将静态检查和动态的部分分开，我们可以快速的检查错误并且对于多次检查只执行一次而不是每次表达式计算的时候都进行检查。</p>
+<p>让我们往Expr接口中增加另一个方法。Check方法对一个表达式语义树检查出静态错误。我们马上会说明它的vars参数。</p>
+<pre><code class="language-go">type Expr interface {
+	Eval(env Env) float64
+	// Check reports errors in this Expr and adds its Vars to the set.
+	Check(vars map[Var]bool) error
+}
+</code></pre>
+<p>具体的Check方法展示在下面。literal和Var类型的计算不可能失败，所以这些类型的Check方法会返回一个nil值。对于unary和binary的Check方法会首先检查操作符是否有效，然后递归的检查运算单元。相似地对于call的这个方法首先检查调用的函数是否已知并且有没有正确个数的参数，然后递归的检查每一个参数。</p>
+<pre><code class="language-go">func (v Var) Check(vars map[Var]bool) error {
+	vars[v] = true
+	return nil
+}
+
+func (literal) Check(vars map[Var]bool) error {
+	return nil
+}
+
+func (u unary) Check(vars map[Var]bool) error {
+	if !strings.ContainsRune("+-", u.op) {
+		return fmt.Errorf("unexpected unary op %q", u.op)
+	}
+	return u.x.Check(vars)
+}
+
+func (b binary) Check(vars map[Var]bool) error {
+	if !strings.ContainsRune("+-*/", b.op) {
+		return fmt.Errorf("unexpected binary op %q", b.op)
+	}
+	if err := b.x.Check(vars); err != nil {
+		return err
+	}
+	return b.y.Check(vars)
+}
+
+func (c call) Check(vars map[Var]bool) error {
+	arity, ok := numParams[c.fn]
+	if !ok {
+		return fmt.Errorf("unknown function %q", c.fn)
+	}
+	if len(c.args) != arity {
+		return fmt.Errorf("call to %s has %d args, want %d",
+			c.fn, len(c.args), arity)
+	}
+	for _, arg := range c.args {
+		if err := arg.Check(vars); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var numParams = map[string]int{"pow": 2, "sin": 1, "sqrt": 1}
+</code></pre>
+<p>我们在两个组中有选择地列出有问题的输入和它们得出的错误。Parse函数（这里没有出现）会报出一个语法错误和Check函数会报出语义错误。</p>
+<pre><code>x % 2               unexpected '%'
+math.Pi             unexpected '.'
+!true               unexpected '!'
+"hello"             unexpected '"'
+
+log(10)             unknown function "log"
+sqrt(1, 2)          call to sqrt has 2 args, want 1
+</code></pre>
+<p>Check方法的参数是一个Var类型的集合，这个集合聚集从表达式中找到的变量名。为了保证成功的计算，这些变量中的每一个都必须出现在环境变量中。从逻辑上讲，这个集合就是调用Check方法返回的结果，但是因为这个方法是递归调用的，所以对于Check方法，填充结果到一个作为参数传入的集合中会更加的方便。调用方在初始调用时必须提供一个空的集合。</p>
+<p>在第3.2节中，我们绘制了一个在编译期才确定的函数f(x,y)。现在我们可以解析，检查和计算在字符串中的表达式，我们可以构建一个在运行时从客户端接收表达式的web应用并且它会绘制这个函数的表示的曲面。我们可以使用集合vars来检查表达式是否是一个只有两个变量x和y的函数——实际上是3个，因为我们为了方便会提供半径大小r。并且我们会在计算前使用Check方法拒绝有格式问题的表达式，这样我们就不会在下面函数的40000个计算过程（100x100个栅格，每一个有4个角）重复这些检查。</p>
+<p>这个ParseAndCheck函数混合了解析和检查步骤的过程：</p>
+<p><u><i>gopl.io/ch7/surface</i></u></p>
+<pre><code class="language-go">import "gopl.io/ch7/eval"
+
+func parseAndCheck(s string) (eval.Expr, error) {
+	if s == "" {
+		return nil, fmt.Errorf("empty expression")
+	}
+	expr, err := eval.Parse(s)
+	if err != nil {
+		return nil, err
+	}
+	vars := make(map[eval.Var]bool)
+	if err := expr.Check(vars); err != nil {
+		return nil, err
+	}
+	for v := range vars {
+		if v != "x" &amp;&amp; v != "y" &amp;&amp; v != "r" {
+			return nil, fmt.Errorf("undefined variable: %s", v)
+		}
+	}
+	return expr, nil
+}
+</code></pre>
+<p>为了编写这个web应用，所有我们需要做的就是下面这个plot函数，这个函数有和http.HandlerFunc相似的签名：</p>
+<pre><code class="language-go">func plot(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	expr, err := parseAndCheck(r.Form.Get("expr"))
+	if err != nil {
+		http.Error(w, "bad expr: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "image/svg+xml")
+	surface(w, func(x, y float64) float64 {
+		r := math.Hypot(x, y) // distance from (0,0)
+		return expr.Eval(eval.Env{"x": x, "y": y, "r": r})
+	})
+}
+</code></pre>
+<p><img src="../images/ch7-07.png" alt="" /></p>
+<p>这个plot函数解析和检查在HTTP请求中指定的表达式并且用它来创建一个两个变量的匿名函数。这个匿名函数和来自原来surface-plotting程序中的固定函数f有相同的签名，但是它计算一个用户提供的表达式。环境变量中定义了x，y和半径r。最后plot调用surface函数，它就是gopl.io/ch3/surface中的主要函数，修改后它可以接受plot中的函数和输出io.Writer作为参数，而不是使用固定的函数f和os.Stdout。图7.7中显示了通过程序产生的3个曲面。</p>
+<p><strong>练习 7.13：</strong> 为Expr增加一个String方法来打印美观的语法树。当再一次解析的时候，检查它的结果是否生成相同的语法树。</p>
+<p><strong>练习 7.14：</strong> 定义一个新的满足Expr接口的具体类型并且提供一个新的操作例如对它运算单元中的最小值的计算。因为Parse函数不会创建这个新类型的实例，为了使用它你可能需要直接构造一个语法树（或者继承parser接口）。</p>
+<p><strong>练习 7.15：</strong> 编写一个从标准输入中读取一个单一表达式的程序，用户及时地提供对于任意变量的值，然后在结果环境变量中计算表达式的值。优雅的处理所有遇到的错误。</p>
+<p><strong>练习 7.16：</strong> 编写一个基于web的计算器程序。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch7/ch7-08.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch7/ch7-10.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch7/ch7-08.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch7/ch7-10.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
