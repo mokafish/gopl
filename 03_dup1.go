@@ -19,5 +19,6 @@ func main() {
 		if n > 1 {
 			fmt.Printf("%d\t%s\n", n, line)
 		}
+
 	}
 }

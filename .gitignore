@@ -2,3 +2,7 @@
 *.out*
 _zz*
 *.exe
+tmp.*
+*.tmp
+*.log
+tmp/
